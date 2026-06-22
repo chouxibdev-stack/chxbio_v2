@@ -1,0 +1,33 @@
+services:
+  - type: web
+    name: chxbio
+    runtime: node
+    repo: https://github.com/chouxibdev-stack/chxbio_v2
+    plan: free
+    region: frankfurt
+    buildFilter:
+      paths:
+        - package.json
+        - server.js
+        - addon.js
+        - manifest.js
+        - scrapers/**
+        - debrid/**
+        - utils/**
+    envVars:
+      - key: PORT
+        value: 10000
+      - key: MIN_SEEDERS
+        value: "0"
+      - key: MAX_RESULTS
+        value: "50"
+      - key: DISABLED_SCRAPERS
+        value: ""
+      - key: REAL_DEBRID_API_TOKEN
+        sync: false
+      - key: ALLDEBRID_API_KEY
+        sync: false
+      - key: PREMIUMIZE_API_KEY
+        sync: false
+    buildCommand: npm install --production
+    startCommand: node server.js
