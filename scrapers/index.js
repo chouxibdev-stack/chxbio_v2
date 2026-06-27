@@ -91,8 +91,8 @@ async function testAllScrapers(query = 'The Matrix 1999') {
 async function searchAll(query, type = 'movie', season = null, episode = null, opts = {}) {
   const scrapers = getEnabledScrapers();
 
-  const SEARCH_TIMEOUT = parseInt(process.env.SEARCH_TIMEOUT || '29000', 10);
-  const SCRAPER_TIMEOUT = parseInt(process.env.SCRAPER_TIMEOUT || '25000', 10);
+  const SEARCH_TIMEOUT = parseInt(process.env.SEARCH_TIMEOUT || '25000', 10);
+  const SCRAPER_TIMEOUT = parseInt(process.env.SCRAPER_TIMEOUT || '20000', 10);
   const collected = [];
 
   const withTimeout = (promise, ms) => Promise.race([
