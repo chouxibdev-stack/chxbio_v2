@@ -184,18 +184,21 @@ builder.defineStreamHandler(async ({ type, id }) => {
         if (results.length === 0) return { streams: [], cacheMaxAge: 0 };
 
         const metadata = await fetchMetadata(mediaId, source);
-        const { streams, packMatches } = processResults(results, type, season, episode, metadata ? metadata.name : mediaName);
+        let { streams, packMatches } = processResults(results, type, season, episode, metadata ? metadata.name : mediaName);
 
         // Resolve file indices for season pack streams
         if (type === 'series' && episode) {
-          await Promise.all(packMatches.map(async ({ stream, result }) => {
+          const resolvedPacks = await Promise.all(packMatches.map(async ({ stream, result }) => {
             const resolved = await resolveFileIndex(result.infoHash, result.torrentUrl, season, episode);
             if (resolved) {
               stream.fileIdx = resolved.fileIdx;
               const fname = (resolved.files[resolved.fileIdx]?.path || '').split(/[/\\]/).pop();
               if (fname) stream.title = stream.title.replace('📦 Season Pack', `📄 ${shortName(fname, 35)}`);
+              return true;
             }
+            return false;
           }));
+          packMatches = packMatches.filter((_, i) => resolvedPacks[i]);
         }
 
         const allStreams = [...streams, ...packMatches.map(p => p.stream)];
