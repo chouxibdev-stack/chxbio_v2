@@ -8,6 +8,7 @@ const nyaa = require('./nyaa');
 const eztv = require('./eztv');
 const yts = require('./yts');
 const piratebay = require('./piratebay');
+const uindex = require('./uindex');
 
 const SCRAPERS = [
   bitsearch,
@@ -19,7 +20,8 @@ const SCRAPERS = [
   nyaa,
   eztv,
   yts,
-  piratebay
+  piratebay,
+  uindex
 ];
 
 const SCRAPER_META = SCRAPERS.map(s => ({
