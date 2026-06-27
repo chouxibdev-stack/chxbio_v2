@@ -18,6 +18,7 @@ function shortName(str, max) {
 const PORT = process.env.PORT || 7000;
 const app = express();
 app.use(express.json());
+app.use('/logo', express.static(__dirname));
 debrid.init();
 
 // ---------- Stremio Addon Interface (SDK) ----------

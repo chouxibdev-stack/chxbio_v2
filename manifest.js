@@ -1,10 +1,10 @@
 const manifest = {
   id: 'community.chxbio',
   version: '1.0.1',
-  name: 'CHXBIO - localhost',
+  name: 'CHXBIO - Torrents Unleashed',
   description: 'Torrent scraper addon - BitSearch, LimeTorrents, CPASBien, Torrent9, Nyaa.si & more. Supports Real-Debrid, AllDebrid, Premiumize.',
-  logo: 'https://i.imgur.com/4g4L4vF.png',
-  background: 'https://i.imgur.com/4g4L4vF.png',
+  logo: '/logo/chxbio-logo.jpeg',
+  background: '/logo/chxbio-logo.jpeg',
   resources: ['stream', 'catalog', 'meta'],
   types: ['movie', 'series'],
   idPrefixes: ['tt', 'kitsu', 'mal'],
