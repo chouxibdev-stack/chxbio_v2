@@ -10,6 +10,7 @@ const yts = require('./yts');
 const piratebay = require('./piratebay');
 const uindex = require('./uindex');
 const extto = require('./extto');
+const rargb = require('./rargb');
 
 const SCRAPERS = [
   bitsearch,
@@ -23,7 +24,8 @@ const SCRAPERS = [
   yts,
   piratebay,
   uindex,
-  extto
+  extto,
+  rargb
 ];
 
 const SCRAPER_META = SCRAPERS.map(s => ({
