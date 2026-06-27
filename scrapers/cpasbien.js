@@ -2,22 +2,6 @@ const { get: fetch } = require('../utils/fetch');
 const cheerio = require('cheerio');
 
 const BASE_URL = 'https://www.cpasbien3.cc';
-const USER_AGENTS = [
-  'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
-  'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:109.0) Gecko/20100101 Firefox/119.0',
-  'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.1 Safari/605.1.15'
-];
-
-function getHeaders() {
-  return {
-    'User-Agent': USER_AGENTS[Math.floor(Math.random() * USER_AGENTS.length)],
-    'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8',
-    'Accept-Language': 'fr-FR,fr;q=0.9,en-US;q=0.8,en;q=0.7',
-    'Referer': BASE_URL + '/',
-    'DNT': '1',
-    'Connection': 'keep-alive'
-  };
-}
 
 async function search(query, type, season, episode) {
   const results = [];
@@ -25,79 +9,64 @@ async function search(query, type, season, episode) {
 
   for (const sq of searchQueries) {
     try {
-      const searchUrl = `${BASE_URL}/recherche/${encodeURIComponent(sq.replace(/\s+/g, '-'))}/`;
+      const searchUrl = `${BASE_URL}/recherche/${encodeURIComponent(sq)}`;
       const response = await fetch(searchUrl, {
         timeout: 15000,
-        referer: BASE_URL + '/',
-        headers: { 'Accept-Language': 'fr-FR,fr;q=0.9,en-US;q=0.8,en;q=0.7' }
+        headers: { 'Accept-Language': 'fr-FR,fr;q=0.9' }
       });
 
+      if (!response.data.includes('seed_ok') && !response.data.includes('table-corps')) return [];
+
       const $ = cheerio.load(response.data);
-      $('.ligne, .ligne0, [class*="ligne"], .torrent-item, article').each((i, elem) => {
+
+      $('a.titre').each((i, el) => {
         try {
-          const titleEl = $(elem).find('a');
-          let title = '';
-          let detailUrl = '';
+          const title = $(el).find('div.maxi').text().trim();
+          const href = $(el).attr('href') || '';
+          if (!title || !href) return;
 
-          titleEl.each((j, a) => {
-            const href = $(a).attr('href') || '';
-            if (href.includes('/telecharger/') || href.includes('/torrent/') || href.includes('/dl/')) {
-              const t = $(a).text().trim() || $(a).attr('title') || '';
-              if (t.length > title.length) {
-                title = t;
-                detailUrl = href;
-              }
-            }
-          });
-
-          if (!title) title = $(elem).text().trim();
-          if (!title || title.length < 5) return;
-
-          const spanText = $(elem).text();
-          let size = '';
-          let seeders = 0;
-          let leechers = 0;
-
-          const sizeMatch = spanText.match(/(\d+[.,]?\d*)\s*(Go|Mo|Ko|GB|MB|KB)/i);
-          if (sizeMatch) size = sizeMatch[0];
-
-          const seedMatch = spanText.match(/(\d+)\s*seed/i);
-          if (seedMatch) seeders = parseInt(seedMatch[1]);
-
-          const leechMatch = spanText.match(/(\d+)\s*leech/i);
-          if (leechMatch) leechers = parseInt(leechMatch[1]);
-
-          let magnet = '';
-          let infoHash = '';
-          const magnetEl = $(elem).find('a[href*="magnet:"]');
-          if (magnetEl.length) {
-            magnet = magnetEl.attr('href') || '';
-            const ih = magnet.match(/btih:([a-fA-F0-9]+)/);
-            if (ih) infoHash = ih[1];
-          }
+          const row = $(el).closest('tr');
+          const size = row.find('div.poid').text().trim();
+          const seeders = parseInt(row.find('span.seed_ok').text().trim()) || 0;
+          const leechers = parseInt(row.find('div.down').text().trim()) || 0;
 
           results.push({
             title,
             size,
             seeders,
             leechers,
-            magnet,
-            torrentUrl: '',
-            infoHash,
-            detailUrl: detailUrl.startsWith('http') ? detailUrl : BASE_URL + detailUrl,
-            uploadDate: '',
+            detailUrl: href.startsWith('http') ? href : BASE_URL + href,
             source: 'cpasbien'
           });
-        } catch (e) {
-          // skip
-        }
+        } catch (e) {}
       });
-    } catch (e) {
-      // skip
-    }
+
+      if (results.length > 0) break;
+    } catch (e) {}
   }
 
-  return results;
+  if (results.length === 0) return results;
+
+  const toEnrich = results.sort((a, b) => b.seeders - a.seeders).slice(0, 5);
+
+  const enriched = [];
+  for (const r of toEnrich) {
+    try {
+      const dResp = await fetch(r.detailUrl, {
+        timeout: 10000,
+        headers: { 'Accept-Language': 'fr-FR,fr;q=0.9' }
+      });
+      const $d = cheerio.load(dResp.data);
+      const dlLink = $d('a[onclick*="/get_torrents/"]').attr('onclick') || $d('a[href*="/get_torrents/"]').attr('href') || '';
+      const hashMatch = dlLink.match(/get_torrents\/([a-fA-F0-9]{40})/);
+      if (hashMatch) {
+        r.infoHash = hashMatch[1].toLowerCase();
+        enriched.push(r);
+      }
+    } catch (e) {}
+  }
+
+  return enriched;
 }
 
 function buildSearchQueries(query, type, season, episode) {
