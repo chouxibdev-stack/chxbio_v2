@@ -42,10 +42,10 @@ async function enrichResults(results) {
   const enriched = [];
   // Sort by seeders descending so highest-seeded candidates are enriched first
   const sorted = [...results].sort((a, b) => b.seeders - a.seeders);
-  const detailDeadline = Date.now() + 4000;
-  const batch = sorted.slice(0, Math.min(sorted.length, 8)).map(async (r, i) => {
+  const detailDeadline = Date.now() + 30000;
+  const batch = sorted.slice(0, Math.min(sorted.length, 100)).map(async (r, i) => {
     if (Date.now() > detailDeadline) return;
-    if (i > 0) await new Promise(r => setTimeout(r, 30));
+    if (i > 0) await new Promise(r => setTimeout(r, 300));
     if (Date.now() > detailDeadline) return;
     try {
       const detailResp = await fetch(r.detailUrl, {
