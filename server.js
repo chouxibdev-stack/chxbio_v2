@@ -202,7 +202,7 @@ builder.defineStreamHandler(async ({ type, id }) => {
         const perSource = {};
         allStreams.forEach(s => { const n = s.name || '?'; perSource[n] = (perSource[n]||0) + 1; });
         console.log(`[Stremio] ${id}: returning ${allStreams.length} streams (${JSON.stringify(perSource)}) - query: "${mediaName}"`);
-        return { streams: allStreams.slice(0, 100), cacheMaxAge: 60, staleRevalidate: 30, staleError: 120 };
+        return { streams: allStreams.slice(0, 100), cacheMaxAge: 86400, staleRevalidate: 86400, staleError: 86400 };
       })();
 
       return await Promise.race([work, timeout]);

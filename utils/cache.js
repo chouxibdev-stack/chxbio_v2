@@ -1,7 +1,7 @@
 const store = new Map();
 
 const DEFAULTS = {
-  streamsTTL: parseInt(process.env.STREAMS_TTL || '60000', 10),
+  streamsTTL: parseInt(process.env.STREAMS_TTL || '86400000', 10),
   metadataTTL: 24 * 60 * 60 * 1000,
   imdbTTL: 7 * 24 * 60 * 60 * 1000,
 };
