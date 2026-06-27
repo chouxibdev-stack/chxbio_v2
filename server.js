@@ -10,6 +10,11 @@ const { resolveFileIndex } = require('./utils/torrentResolver');
 const cache = require('./utils/cache');
 const stringSimilarity = require('string-similarity');
 
+function shortName(str, max) {
+  if (!str || str.length <= max) return str;
+  return str.substring(0, max - 3) + '...';
+}
+
 const PORT = process.env.PORT || 7000;
 const app = express();
 app.use(express.json());
