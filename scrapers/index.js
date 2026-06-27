@@ -2,6 +2,7 @@ const bitsearch = require('./bitsearch');
 const limetorrents = require('./limetorrents');
 const cpasbien = require('./cpasbien');
 const torrent9 = require('./torrent9');
+const x1337 = require('./x1337');
 const nyaa = require('./nyaa');
 const eztv = require('./eztv');
 const yts = require('./yts');
@@ -12,6 +13,7 @@ const SCRAPERS = [
   limetorrents,
   cpasbien,
   torrent9,
+  x1337,
   nyaa,
   eztv,
   yts,
