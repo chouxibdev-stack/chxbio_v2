@@ -46,7 +46,7 @@ function extractSeasonEpisode(title) {
     /Season\s*(\d{1,2})\s*Episode\s*(\d{1,2})/i,
     /(\d{1,2})x(\d{1,2})/,
     /S(\d{1,2})\s*[-]\s*E(\d{1,2})/i,
-    /S(\d{1,2})[.\s](\d{1,2})/i
+    /S(\d{1,2})[.\s](\d{1,2})(?!\d)/i
   ];
   for (const regex of regexes) {
     const match = title.match(regex);

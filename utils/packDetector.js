@@ -1,4 +1,4 @@
-const { extractSeasonEpisode, extractSeason, normalizeTitle } = require('./parser');
+const { extractSeasonEpisode, extractSeason, extractSeasonRange, normalizeTitle } = require('./parser');
 
 function isSeriesPack(title, parsed) {
   if (!title) return false;
@@ -14,7 +14,11 @@ function isSeriesPack(title, parsed) {
     's\\d{1,2}(-|\\s*to\\s*)s\\d{1,2}',
     'e\\d{1,2}-e\\d{1,2}',
     '\\d{3,4}p.*(?:complete|season|pack)',
-    'all episodes', 's\\d{1,2}\\s+complete'
+    'all episodes', 's\\d{1,2}\\s+complete',
+    'saison', 'integrale', 'intégrale', 'série', 'serie',
+    'temporada', 'stagione', 'komplet', 'todos',
+    'completa', 'completo', 'completas', 'completos',
+    's\\d{1,2}\\s*[-–&]\\s*\\d{1,2}'
   ];
 
   for (const keyword of packKeywords) {
@@ -33,6 +37,11 @@ function isSeriesPack(title, parsed) {
 
   const season = extractSeason(title);
   if (season && !se) {
+    return true;
+  }
+
+  const range = extractSeasonRange(title);
+  if (range) {
     return true;
   }
 
